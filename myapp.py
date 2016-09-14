@@ -1,18 +1,24 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, render_template
 from hashlib import sha1
+
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def index():
-    return "Hello,World!"
+    return render_template('index.html')
 
 
-@app.route('/check',  methods=['GET', 'POST'])
+@app.route('/user/<name>')
+def user(name):
+    return render_template('user.html', name=name)
+
+
+@app.route('/check', methods=['GET', 'POST'])
 def check():
     if request.method == 'GET':
-        token = r'test' # 这个根据自己的设置自行修改
+        token = r'test'  
         signature = request.args.get('signature', '')
         echostr = request.args.get('echostr', '')
         timestamp = request.args.get('timestamp', '')
@@ -21,9 +27,10 @@ def check():
         tmp.sort()
         tmp = ''.join(tmp)
         if signature == sha1(tmp).hexdigest():
-            return  make_response(echostr)
+            return make_response(echostr)
         else:
             return "Access denied."
+
 
 if __name__ == '__main__':
     app.run()
